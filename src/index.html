@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat UI</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f4f6f8;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .chat-container {
+        background: #ffffff;
+        width: 400px;
+        max-width: 90%;
+        height: 600px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .chat-header {
+        padding: 15px;
+        background-color: #4a90e2;
+        color: white;
+        text-align: center;
+        font-size: 1.2em;
+        font-weight: bold;
+      }
+
+      .chat-messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        background: #f9f9f9;
+      }
+
+      .message {
+        margin: 10px 0;
+        max-width: 80%;
+        padding: 10px 15px;
+        border-radius: 15px;
+        clear: both;
+      }
+
+      .user-message {
+        background-color: #dcf8c6;
+        align-self: flex-end;
+        margin-left: auto;
+      }
+
+      .bot-message {
+        background-color: #e1e1e1;
+        align-self: flex-start;
+        margin-right: auto;
+      }
+
+      .chat-input {
+        display: flex;
+        border-top: 1px solid #ddd;
+      }
+
+      .chat-input input {
+        flex: 1;
+        border: none;
+        padding: 15px;
+        font-size: 1em;
+        outline: none;
+      }
+
+      .chat-input button {
+        padding: 0 20px;
+        border: none;
+        background: #4a90e2;
+        color: white;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .chat-input button:hover {
+        background: #357abd;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-header">Chat Interface</div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input">
+        <input
+          type="text"
+          id="messageInput"
+          placeholder="Type your message..."
+        />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <script>
+      async function sendMessage() {
+        const input = document.getElementById("messageInput");
+        const message = input.value.trim();
+        if (!message) return;
+
+        // Show user message
+        const chatMessages = document.getElementById("chatMessages");
+        const userMsg = document.createElement("div");
+        userMsg.className = "message user-message";
+        userMsg.textContent = message;
+        chatMessages.appendChild(userMsg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        input.value = "";
+
+        try {
+          const res = await fetch("http://localhost:3000/api/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message }),
+          });
+
+          const data = await res.json();
+          console.log(data);
+
+          const botMsg = document.createElement("div");
+          botMsg.className = "message bot-message";
+          botMsg.textContent = data.message.content || "No response";
+          chatMessages.appendChild(botMsg);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        } catch (error) {
+          const errorMsg = document.createElement("div");
+          errorMsg.className = "message bot-message";
+          errorMsg.textContent = "Error connecting to server.";
+          chatMessages.appendChild(errorMsg);
+        }
+      }
+
+      // Optional: Send message on Enter key
+      document
+        .getElementById("messageInput")
+        .addEventListener("keydown", function (e) {
+          if (e.key === "Enter") sendMessage();
+        });
+    </script>
+  </body>
+</html>
