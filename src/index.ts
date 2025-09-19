@@ -23,7 +23,7 @@ app.post("/api/chat",  async (req:Request, res: Response) => {
       model: "ai/gemma3-qat",
       messages: [{ role: "user", content: message }],
     });
-    res.status(200).json({message:response.choices[0].message});
+    res.status(200).send(response.choices[0].message.content);
   } catch (error) {
     console.log(error);
     res.status(500).json({error:"Something went wrong"});

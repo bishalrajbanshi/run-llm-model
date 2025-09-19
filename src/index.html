@@ -144,11 +144,12 @@
             body: JSON.stringify({ message }),
           });
 
-          const data = await res.json();
+          const data = await res.text();
+          console.log(data);
 
           const botMsg = document.createElement("div");
           botMsg.className = "message bot-message";
-          botMsg.textContent = data.message?.content || "No response";
+          botMsg.innerHTML = data || "No response";
           chatMessages.appendChild(botMsg);
           chatMessages.scrollTop = chatMessages.scrollHeight;
         } catch (error) {
